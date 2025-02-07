@@ -2,7 +2,7 @@ import requests
 import json
 
 # Replace with your free SerpAPI key (https://serpapi.com/)
-API_KEY = "your_serpapi_key"
+API_KEY = "c2f9608dd6bae29729ae3581907f90ff5f0f2daf0e9a4bb154b431cb694c558d"
 SEARCH_QUERY = "best laptop 2024"
 
 def scrape_google_results(query):
