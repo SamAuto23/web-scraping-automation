@@ -80,5 +80,5 @@ This project is open-source and available under the MIT License.
 ✅ **Multi-Product Scraping** – Shows users how to scrape **multiple products efficiently**.  
 ✅ **Formatted for GitHub Readability** – Looks **clean** and **professional**.
 
-Now **just copy and paste** this into `README.md`, and you’re done! 🚀
+Now **just copy and paste** this into `README.md`, and you’re done! 
 
