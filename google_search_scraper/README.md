@@ -65,9 +65,9 @@ This project is open-source and available under the MIT License.
 ---
 
 ### **Why This README is Perfect for GitHub:**
-✅ **API Key Configuration Explained** – Ensures users set up **SerpAPI** correctly.  
-✅ **Error Handling Section** – Covers what happens if API fails.  
-✅ **Formatted for GitHub Readability** – Clean **Markdown layout** for professional presentation.  
-✅ **Clear Setup Steps** – New users can quickly start using the script.  
+**API Key Configuration Explained** – Ensures users set up **SerpAPI** correctly.  
+**Error Handling Section** – Covers what happens if API fails.  
+**Formatted for GitHub Readability** – Clean **Markdown layout** for professional presentation.  
+**Clear Setup Steps** – New users can quickly start using the script.  
 
-**Now, copy and paste this into `README.md` and push it to GitHub! 🚀**
+**Now, copy and paste this into `README.md` and push it to GitHub! **
