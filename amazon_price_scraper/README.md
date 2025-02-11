@@ -53,14 +53,16 @@ python amazon_price_scraper.py
 
 
 Configuration
-Add multiple Amazon product URLs inside the script.
-Ensure ScraperAPI or a similar proxy is correctly set up.
-Configure Selenium as a backup for blocked requests.
-The script automatically saves results in amazon_prices.csv.
+-Add multiple Amazon product URLs inside the script.
+-Ensure ScraperAPI or a similar proxy is correctly set up.
+-Configure Selenium as a backup for blocked requests.
+-The script automatically saves results in amazon_prices.csv.
+
 Error Handling
-Retries requests up to 3 times before switching to Selenium.
-Delays are added randomly to mimic human behaviour.
-Handles CAPTCHAs and blocked requests.
+-Retries requests up to 3 times before switching to Selenium.
+-Delays are added randomly to mimic human behaviour.
+-Handles CAPTCHAs and blocked requests.
+
 Contributing
 Feel free to submit issues, fork the repository, and make pull requests to enhance the project.
 
