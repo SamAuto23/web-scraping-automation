@@ -1,0 +1,145 @@
+import os
+import pandas as pd
+import numpy as np
+
+# Set the working directory where the Excel files are stored
+os.chdir(r"C:\Users\coto4\OneDrive - Loughborough University\Code data")
+
+# Load dataset
+train_data = pd.read_excel("Train.data.xlsx", header=None)
+actual_values = pd.read_excel("Actual values.xlsx", header=None)
+
+# Define column options
+column_options = {
+    "1": "Crakehill",
+    "2": "Skip Bridge",
+    "3": "Westwick"
+}
+
+# Ask user how many input nodes they want
+num_input_nodes = int(input("How many input nodes do you want? (1, 2, or 3): "))
+
+# Ensure valid selection
+while num_input_nodes not in [1, 2, 3]:
+    print("Invalid selection. Please enter 1, 2, or 3.")
+    num_input_nodes = int(input("How many input nodes do you want? (1, 2, or 3): "))
+
+# Ask user which columns to use as input
+selected_columns = []
+for i in range(num_input_nodes):
+    col_choice = input(f"Select column {i+1} (Enter 1 for Crakehill, 2 for Skip Bridge, 3 for Westwick): ")
+    while col_choice not in column_options:
+        print("Invalid choice. Please enter 1, 2, or 3.")
+        col_choice = input(f"Select column {i+1} (Enter 1 for Crakehill, 2 for Skip Bridge, 3 for Westwick): ")
+    selected_columns.append(int(col_choice) - 1)  # Adjust for zero-indexing
+
+# Extract selected columns dynamically
+X = train_data.iloc[:, selected_columns].to_numpy()  # Input data (standardized)
+Y = actual_values.to_numpy().flatten()  # Target data (mean daily flow in Skelton)
+
+# Replace NaN values with a small number close to zero to avoid training issues
+X = np.nan_to_num(X, nan=1e-10)
+
+# Ask for the number of hidden nodes
+num_hidden_nodes = int(input("Enter the number of hidden nodes: "))
+num_epochs = 7500  # Maximum epochs
+learning_rate = 0.1  # Set learning parameter
+
+# Initialize weights and biases
+np.random.seed(42)  # For reproducibility
+weights_input_hidden = np.random.uniform(-2/num_input_nodes, 2/num_input_nodes, (num_input_nodes, num_hidden_nodes))
+weights_hidden_output = np.random.uniform(-2/num_hidden_nodes, 2/num_hidden_nodes, num_hidden_nodes)
+bias_hidden = np.zeros(num_hidden_nodes)
+bias_output = 0
+
+# Activation Functions
+def tanh(x):
+    return np.tanh(x)
+
+def tanh_derivative(x):
+    return 1 - np.tanh(x) ** 2
+
+def linear(x):
+    return x
+
+def linear_derivative(x):
+    return 1
+
+# Store RMSE after each epoch
+rmse_list = []
+
+# Training process
+for epoch in range(num_epochs):
+    squared_errors = []
+    
+    for i in range(len(X)):  # Loop through each training example
+        # Forward pass
+        hidden_input = np.dot(X[i], weights_input_hidden) + bias_hidden  # Compute weighted sum for hidden layer
+        hidden_output = tanh(hidden_input)  # Apply tanh activation
+        final_input = np.dot(hidden_output, weights_hidden_output) + bias_output  # Compute weighted sum for output
+        final_output = linear(final_input)  # Apply linear activation
+
+        # Calculate error
+        error = Y[i] - final_output
+        squared_errors.append(error ** 2)
+
+        # Backpropagation
+
+        # 1️⃣ Compute delta_output (Error signal at the output node)
+        delta_output = error * linear_derivative(final_output)  # Linear activation derivative is always 1
+
+        # 2️⃣ Compute delta_hidden (Error signal at the hidden nodes)
+        delta_hidden = weights_hidden_output * delta_output * tanh_derivative(hidden_output)
+
+        # 3️⃣ Update weights and biases for hidden-to-output
+        weights_hidden_output += learning_rate * delta_output * hidden_output
+        bias_output += learning_rate * delta_output  # Bias always uses ui = 1
+
+        # 4️⃣ Update weights and biases for input-to-hidden
+        for j in range(num_hidden_nodes):
+            weights_input_hidden[:, j] += learning_rate * delta_hidden[j] * X[i]  # Update input-hidden weights
+            bias_hidden[j] += learning_rate * delta_hidden[j]  # Bias always uses ui = 1
+
+    # Compute RMSE for this epoch
+    rmse = np.sqrt(np.mean(squared_errors))
+    rmse_list.append(rmse)
+
+    # Print RMSE every 50 epochs
+    if (epoch + 1) % 50 == 0:
+        print(f"Epoch {epoch + 1}/{num_epochs}, RMSE: {rmse:.5f}")
+
+# Save results to Excel file
+column_names = [column_options[str(c + 1)] for c in selected_columns]
+filename_str = "-".join(column_names)
+output_filename = f"ANN_{filename_str}_{num_input_nodes}-{num_hidden_nodes}-1.xlsx"
+
+# Handle file overwrite scenario
+if os.path.exists(output_filename):
+    existing_df = pd.read_excel(output_filename)
+    existing_epochs = existing_df["Epoch"].tolist()
+    existing_rmse = existing_df["RMSE"].tolist()
+    
+    # Extend RMSE values if needed
+    if len(existing_epochs) < num_epochs:
+        new_epochs = list(range(len(existing_epochs) + 1, num_epochs + 1))
+        existing_epochs.extend(new_epochs)
+        existing_rmse.extend(rmse_list[len(existing_rmse):])  # Append only missing values
+    
+    df_results = pd.DataFrame({"Epoch": existing_epochs, "RMSE": existing_rmse})
+else:
+    df_results = pd.DataFrame({"Epoch": np.arange(1, num_epochs + 1), "RMSE": rmse_list})
+
+df_results.to_excel(output_filename, index=False)
+print(f"Training complete. Results saved to {output_filename}")
+
+# Ask user if they want to build another ANN
+while True:
+    choice = input("Do you want to build another ANN? (yes/no): ").strip().lower()
+    if choice == "yes":
+        os.system("python " + __file__)  # Restart script
+        break
+    elif choice == "no":
+        print("Exiting...")
+        break
+    else:
+        print("Invalid response. Please enter 'yes' or 'no'.")
